@@ -56,7 +56,7 @@
   <nav id="tabs"></nav>
 </header>
 <main>
-  <iframe id="app"  title="Maranatha Learning Center" allow="camera; microphone; geolocation; clipboard-write; fullscreen" referrerpolicy="no-referrer"></iframe>
+  <iframe id="app" credentialless title="Maranatha Learning Center" allow="camera; microphone; geolocation; clipboard-write; fullscreen" referrerpolicy="no-referrer"></iframe>
   <div class="cover" id="loading"><div class="spin"></div><p style="margin-top:14px">Opening Maranatha…</p></div>
   <div id="offView" hidden>
     <div class="offbar"><span>&#9679; Offline &middot; <span id="offWhen"></span></span><select id="offPick" aria-label="Saved screens"></select><button onclick="go(cur, true)">Retry</button></div>
@@ -105,7 +105,9 @@ function go(v, force) {
   if (!force && openKey === v.key) { show(null); return; }
   show("loading"); openKey = v.key;
   var a = savedAccounts(), src = v.url;
+  var tk = ""; try { tk = localStorage.getItem("maranatha-learning-center:token") || ""; } catch (x) {}
   if (a && a !== "[]") src += "#cces=" + btoa(unescape(encodeURIComponent(a)));
+  else if (tk) src += "#tok=" + encodeURIComponent(tk);
   frame.setAttribute("src", src);
 }
 function show(id) {
@@ -170,7 +172,8 @@ window.addEventListener("message", function (e) {
   var d = e.data, host = ""; try { host = new URL(e.origin).hostname; } catch (x) {}
   if (!d || !(/\.googleusercontent\.com$/.test(host) || host === "script.google.com")) return;
   if (d.cces === "snap" && d.html) saveSnap(d);
-  if (d.cces === "signout" || (d.cces === "accounts" && d.accounts && !d.accounts.length)) kclear().catch(function () {});
+  if (d.cces === "token") { try { if (d.token) localStorage.setItem("maranatha-learning-center:token", String(d.token)); else localStorage.removeItem("maranatha-learning-center:token"); } catch (x) {} }
+  if (d.cces === "signout" || (d.cces === "accounts" && d.accounts && !d.accounts.length)) { kclear().catch(function () {}); try { localStorage.removeItem("maranatha-learning-center:token"); } catch (x) {} }
 });
 frame.addEventListener("load", function () { if (navigator.onLine) show(null); });
 window.addEventListener("offline", function () { show("offline"); });
