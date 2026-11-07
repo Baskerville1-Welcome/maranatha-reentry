@@ -46,6 +46,35 @@
   .offbar select { max-width: 45%; padding: 6px; border-radius: 8px; border: 1px solid #d6c27e; }
   .offbar button { border: 0; background: var(--navy); color: #fff; border-radius: 8px; padding: 7px 12px; }
   #offFrame { flex: 1; width: 100%; border: 0; position: static; }
+  .hbtn { border: 1px solid rgba(255,255,255,.5); background: transparent; color: #fff; border-radius: 999px; padding: 8px 12px; font-size: 15px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+  .hbtn.help { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+  .sheet { position: fixed; inset: 0; background: rgba(15,25,40,.55); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
+  .sheet .box { background: #fff; width: 100%; max-width: 560px; max-height: 92vh; overflow: auto; border-radius: 20px 20px 0 0; padding: 18px 18px calc(env(safe-area-inset-bottom) + 18px); }
+  @media (min-width: 700px) { .sheet { align-items: center; } .sheet .box { border-radius: 20px; } }
+  .sheet h2 { font-family: Georgia, serif; color: var(--navy); margin: 0 0 6px; font-size: 22px; }
+  .sheet p { color: #55606e; line-height: 1.5; margin: 0 0 12px; font-size: 16px; }
+  .tour { background: var(--cream); border: 1px solid #e3ddcf; border-radius: 14px; overflow: hidden; }
+  .tbar { height: 5px; background: #e3ddcf; } .tbar i { display: block; height: 100%; width: 0; background: var(--gold); }
+  #tslide { min-height: 360px; padding: 16px; }
+  #tslide h3 { font-family: Georgia, serif; color: var(--navy); font-size: 23px; margin: 4px 0 12px; }
+  .tstep { color: #9a6a12; font-weight: 700; font-size: 14px; letter-spacing: .5px; }
+  .tcard { background: #fff; border: 1px solid #d6dad3; border-left: 5px solid var(--gold); border-radius: 12px; padding: 12px 14px; margin: 0 0 10px; font-size: 16px; line-height: 1.45; opacity: 0; animation: tup .5s ease forwards; }
+  .tcard b { display: block; color: var(--navy); font-size: 17px; }
+  .tcover { text-align: center; background: var(--navy); color: #fff; margin: -16px; padding: 70px 20px; min-height: 392px; }
+  .tcover .tm { width: 96px; height: 96px; margin: 0 auto 18px; border: 4px solid var(--gold); border-radius: 50%; color: var(--gold); font: bold 54px/88px Georgia, serif; }
+  .tcover h3 { color: #fff !important; } .tcover p { color: #e8dcc0; font-size: 18px; }
+  .tin { animation: tfade .45s ease; }
+  @keyframes tfade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes tup { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .tctl { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #e3ddcf; background: #fff; }
+  .tctl button { flex: 1; border: 0; border-radius: 10px; padding: 12px; font-size: 17px; font-weight: 700; background: #eef0f3; color: var(--navy); cursor: pointer; }
+  .tctl #tplay { flex: 2; background: var(--navy); color: #fff; }
+  .opt { display: block; width: 100%; text-align: left; background: #f7f8fa; border: 1px solid #d6dad3; border-left: 5px solid var(--gold); border-radius: 12px; padding: 14px; margin: 0 0 10px; font-size: 16px; color: #1d2430; cursor: pointer; }
+  .opt b { display: block; color: var(--navy); font-size: 18px; margin-bottom: 2px; }
+  .sheet textarea { width: 100%; min-height: 110px; font-size: 17px; padding: 10px; border-radius: 10px; border: 1px solid #c9ced6; margin: 4px 0 10px; font-family: inherit; }
+  .close { background: transparent; color: #55606e; border: 1px solid #d6dad3; width: 100%; margin-top: 4px; }
+  .new li { margin: 0 0 8px; line-height: 1.45; }
+  @media (max-width: 420px) { header b { font-size: 15px; } .hbtn { padding: 7px 9px; font-size: 14px; } }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -54,6 +83,8 @@
   <img src="icon-192.png" alt="">
   <b>Maranatha Learning Center</b>
   <nav id="tabs"></nav>
+  <button class="hbtn" onclick="openSheet('howSheet')" aria-label="How-to video">&#9654; How to</button>
+  <button class="hbtn help" onclick="openSheet('helpSheet')" aria-label="Help">? Help</button>
 </header>
 <main>
   <iframe id="app" credentialless title="Maranatha Learning Center" allow="camera; microphone; geolocation; clipboard-write; fullscreen" referrerpolicy="no-referrer"></iframe>
@@ -204,6 +235,89 @@ if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) {
   }, 1500);
 }
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+</script>
+<div class="sheet" id="howSheet" hidden onclick="if(event.target===this)closeSheet()">
+  <div class="box">
+    <h2>How to use the app</h2>
+    <p>A one-minute walk-through. It plays by itself. Tap pause, back or next any time.</p>
+    <div id="tour" class="tour"><div class="tbar"><i id="tprog"></i></div><div id="tslide"></div>
+      <div class="tctl"><button onclick="tourGo(-1)" aria-label="Back">&#9664;</button><button id="tplay" onclick="tourToggle()">&#10074;&#10074; Pause</button><button onclick="tourGo(1)" aria-label="Next">&#9654;</button></div></div>
+    <div class="new">
+      <h2 style="font-size:19px;margin-top:14px">What's new</h2>
+      <ul>
+        <li><b>Install it like an app</b> on iPhone, Android or a computer.</li>
+        <li><b>Stays signed in</b>, even on phones with more than one Google account.</li>
+        <li><b>Works with no signal</b>: screens you've opened are saved on your device for 14 days.</li>
+        <li><b>Better emails</b>: grant alerts show each deadline with a days-left count, and one big button opens the app.</li>
+        <li><b>How to</b> and <b>Help</b> buttons at the top of every screen.</li>
+      </ul>
+    </div>
+    <button class="btn close" onclick="closeSheet()">Close</button>
+  </div>
+</div>
+<div class="sheet" id="helpSheet" hidden onclick="if(event.target===this)closeSheet()">
+  <div class="box">
+    <h2>Ask the team</h2>
+    <p>Tell us what you were trying to do and what happened. Then choose who to send it to. Your email opens with everything filled in, so you only tap Send.</p>
+    <textarea id="helpMsg" placeholder="Example: I tried to open my résumé and the page stayed blank."></textarea>
+    <button class="opt" onclick="askTeam('nabaskerville@gmail.com','Question for Maranatha staff')"><b>Maranatha staff</b>Classes, the house, or the program.</button>
+    <button class="opt" onclick="askTeam('crispcleaninc@gmail.com','Maranatha app help')"><b>Tech support</b>The app won't open, sign-in codes, or something looks broken.</button>
+    <button class="opt" onclick="openSheet('howSheet')"><b>&#9654; Watch the how-to video</b>Install, sign in, and find your way around.</button>
+    <button class="btn close" onclick="closeSheet()">Close</button>
+  </div>
+</div>
+<script>
+/* How-to video: an animated walk-through that plays inside the app (works offline too). */
+var TOUR = [
+ { t: "Maranatha Reentry Learning Center", sub: "How to use the app", c: [] },
+ { s: 1, t: "Put the app on your phone", c: [["iPhone", "Open the link in Safari. Tap Share (square with an arrow), then Add to Home Screen, then Add."], ["Android", "Open the link in Chrome. Tap Install app, or tap \u22ee then Install app."], ["Computer", "Open the link in Chrome or Edge. Click the install icon at the right end of the address bar."]] },
+ { s: 2, t: "Sign in once, stay signed in", c: [["1. Type your email", "Use the email the team has on file for you."], ["2. Check your email", "A Maranatha email arrives with a sign-in code. Type that code into the app."], ["3. You're in", "The app remembers you, even on a phone with more than one Google account."]] },
+ { s: 3, t: "What's inside", c: [["Courses", "Lessons and certificates, one step at a time."], ["R\u00e9sum\u00e9 builder", "Big buttons and talk-to-type."], ["Journal", "Talk to type, and have it read out loud to you."], ["Documents & help", "Keep papers in your locker and send a request to staff."]] },
+ { s: 4, t: "For staff: grants and emails", c: [["Grants screen", "Open Admin, then Grants. Grants that need an application now are at the top."], ["Emails", "Each grant shows its deadline and a days-left count that turns red at 3 days. Tap the big button to open the app."]] },
+ { s: 5, t: "No signal? It still opens", c: [["Saved screens", "Screens you've opened are saved safely on your device for 14 days."], ["Back online", "Tap Retry. Adding or changing anything needs internet."], ["Signing out", "Signing out erases what's saved on the device."]] },
+ { s: 6, t: "Two buttons at the top", c: [["\u25b6 How to", "Plays this walk-through any time."], ["? Help", "Ask the team: email Maranatha staff or tech support with your question."]] },
+ { s: 7, t: "Need help? Just ask.", c: [["? Help \u2192 Ask the team", "Tell us what you were trying to do. A real person will answer you."]] }
+];
+var tourI = 0, tourT = null, tourOn = false, TOUR_MS = 8000;
+function tourEsc(x) { return String(x).replace(/[&<>]/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[m]; }); }
+function tourDraw() {
+  var d = TOUR[tourI], h = "";
+  if (!d.s) h = '<div class="tcover"><div class="tm">M</div><h3>' + tourEsc(d.t) + '</h3><p>' + tourEsc(d.sub) + '</p></div>';
+  else {
+    h = '<div class="tstep">Step ' + d.s + ' of 7</div><h3>' + tourEsc(d.t) + '</h3>';
+    d.c.forEach(function (c, k) { h += '<div class="tcard" style="animation-delay:' + (0.25 + k * 0.6) + 's"><b>' + tourEsc(c[0]) + '</b>' + tourEsc(c[1]) + '</div>'; });
+  }
+  var el = document.getElementById("tslide"); el.innerHTML = h; el.className = ""; void el.offsetWidth; el.className = "tin";
+  var p = document.getElementById("tprog"); p.style.transition = "none"; p.style.width = (tourI / TOUR.length * 100) + "%"; void p.offsetWidth;
+  if (tourOn) { p.style.transition = "width " + TOUR_MS + "ms linear"; p.style.width = ((tourI + 1) / TOUR.length * 100) + "%"; }
+}
+function tourTick() { clearTimeout(tourT); if (!tourOn) return; tourT = setTimeout(function () { if (tourI < TOUR.length - 1) { tourI++; tourDraw(); tourTick(); } else { tourOn = false; tourBtn(); } }, TOUR_MS); }
+function tourBtn() { document.getElementById("tplay").innerHTML = tourOn ? "&#10074;&#10074; Pause" : (tourI >= TOUR.length - 1 ? "&#8635; Replay" : "&#9654; Play"); }
+function tourStart() { tourI = 0; tourOn = true; tourDraw(); tourBtn(); tourTick(); }
+function tourStop() { tourOn = false; clearTimeout(tourT); }
+function tourToggle() { if (!tourOn && tourI >= TOUR.length - 1) { tourStart(); return; } tourOn = !tourOn; tourDraw(); tourBtn(); tourTick(); }
+function tourGo(n) { tourI = Math.max(0, Math.min(TOUR.length - 1, tourI + n)); tourDraw(); tourTick(); }
+function openSheet(id) {
+  closeSheet();
+  document.getElementById(id).hidden = false;
+  if (id === "howSheet") tourStart();
+  if (id === "helpSheet") setTimeout(function () { document.getElementById("helpMsg").focus(); }, 50);
+}
+function closeSheet() {
+  ["howSheet", "helpSheet"].forEach(function (id) { document.getElementById(id).hidden = true; });
+  tourStop();
+}
+function askTeam(to, subject) {
+  var msg = (document.getElementById("helpMsg").value || "").trim();
+  var body = (msg || "(Type your question here.)") + "\n\n---\nSent from the Maranatha app" +
+    "\nScreen: " + (cur ? cur.label : "Learning Center") +
+    "\nDevice: " + navigator.userAgent.replace(/\s+/g, " ").slice(0, 160) +
+    "\nOnline: " + (navigator.onLine ? "yes" : "no") + "\nTime: " + new Date().toLocaleString();
+  location.href = "mailto:" + to + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+}
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+/* Show the video and "What's new" once after this update. */
+try { if (localStorage.getItem("maranatha-learning-center:seenNew") !== "2026-11-07") { localStorage.setItem("maranatha-learning-center:seenNew", "2026-11-07"); setTimeout(function () { openSheet("howSheet"); }, 1200); } } catch (e) {}
 </script>
 </body>
 </html>
