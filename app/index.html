@@ -75,6 +75,24 @@
   .close { background: transparent; color: #55606e; border: 1px solid #d6dad3; width: 100%; margin-top: 4px; }
   .new li { margin: 0 0 8px; line-height: 1.45; }
   @media (max-width: 420px) { header b { font-size: 15px; } .hbtn { padding: 7px 9px; font-size: 14px; } }
+  .sprog { height: 8px; background: #e3ddcf; border-radius: 99px; overflow: hidden; } .sprog i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .4s; }
+  .scount { font-size: 14px; color: #55606e; margin: 6px 0 12px; font-weight: 700; }
+  .sstep { border: 1px solid #d6dad3; border-radius: 12px; margin: 0 0 10px; background: #fff; overflow: hidden; }
+  .shead { display: flex; gap: 10px; align-items: center; padding: 14px; cursor: pointer; }
+  .shead b { color: var(--navy); font-size: 17px; flex: 1; }
+  .snum { width: 32px; height: 32px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex: none; }
+  .sdone .snum { background: #2e7d4f; } .sdone .shead b { color: #55606e; }
+  .sbody { display: none; padding: 0 14px 14px; } .sopen .sbody { display: block; }
+  .sbody p { color: #1d2430 !important; font-size: 16px !important; }
+  .scopy { background: #f7f8fa; border: 1px solid #d6dad3; border-left: 5px solid var(--gold); border-radius: 10px; padding: 10px 12px; margin: 0 0 10px; }
+  .scopy small { display: block; color: #9a6a12; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; }
+  .scopy div { font-size: 16px; line-height: 1.45; margin: 4px 0 8px; word-break: break-word; }
+  .scopy button, .slink, .sok { border: 0; border-radius: 10px; padding: 11px 16px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .scopy button { background: var(--navy); color: #fff; }
+  .slink { display: block; width: 100%; text-align: center; background: var(--gold); color: var(--navy); text-decoration: none; margin: 0 0 10px; }
+  .sok { width: 100%; background: #2e7d4f; color: #fff; }
+  .sdone .sok { background: #eef0f3; color: #55606e; }
+  .snote { font-size: 14px !important; margin-top: 10px !important; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -250,6 +268,7 @@ if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catc
         <li><b>Works with no signal</b>: screens you've opened are saved on your device for 14 days.</li>
         <li><b>Better emails</b>: grant alerts show each deadline with a days-left count, and one big button opens the app.</li>
         <li><b>How to</b> and <b>Help</b> buttons at the top of every screen.</li>
+        <li><b>Social media setup</b>: tap Help, then Set up social media. Facebook and Instagram, step by step.</li>
       </ul>
     </div>
     <button class="btn close" onclick="closeSheet()">Close</button>
@@ -262,6 +281,7 @@ if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catc
     <textarea id="helpMsg" placeholder="Example: I tried to open my résumé and the page stayed blank."></textarea>
     <button class="opt" onclick="askTeam('nabaskerville@gmail.com','Question for Maranatha staff')"><b>Maranatha staff</b>Classes, the house, or the program.</button>
     <button class="opt" onclick="askTeam('crispcleaninc@gmail.com','Maranatha app help')"><b>Tech support</b>The app won't open, sign-in codes, or something looks broken.</button>
+    <button class="opt" onclick="openSheet('socialSheet')"><b>&#128227; Set up social media</b>Facebook and Instagram, step by step, with the words written for you.</button>
     <button class="opt" onclick="openSheet('howSheet')"><b>&#9654; Watch the how-to video</b>Install, sign in, and find your way around.</button>
     <button class="btn close" onclick="closeSheet()">Close</button>
   </div>
@@ -275,7 +295,7 @@ var TOUR = [
  { s: 3, t: "What's inside", c: [["Courses", "Lessons and certificates, one step at a time."], ["R\u00e9sum\u00e9 builder", "Big buttons and talk-to-type."], ["Journal", "Talk to type, and have it read out loud to you."], ["Documents & help", "Keep papers in your locker and send a request to staff."]] },
  { s: 4, t: "For staff: grants and emails", c: [["Grants screen", "Open Admin, then Grants. Grants that need an application now are at the top."], ["Emails", "Each grant shows its deadline and a days-left count that turns red at 3 days. Tap the big button to open the app."]] },
  { s: 5, t: "No signal? It still opens", c: [["Saved screens", "Screens you've opened are saved safely on your device for 14 days."], ["Back online", "Tap Retry. Adding or changing anything needs internet."], ["Signing out", "Signing out erases what's saved on the device."]] },
- { s: 6, t: "Two buttons at the top", c: [["\u25b6 How to", "Plays this walk-through any time."], ["? Help", "Ask the team: email Maranatha staff or tech support with your question."]] },
+ { s: 6, t: "Two buttons at the top", c: [["\u25b6 How to", "Plays this walk-through any time."], ["? Help", "Ask the team: email Maranatha staff or tech support with your question."], ["\ud83d\udce3 Social media setup", "Inside Help: Facebook and Instagram step by step, with the words written for you."]] },
  { s: 7, t: "Need help? Just ask.", c: [["? Help \u2192 Ask the team", "Tell us what you were trying to do. A real person will answer you."]] }
 ];
 var tourI = 0, tourT = null, tourOn = false, TOUR_MS = 8000;
@@ -301,10 +321,11 @@ function openSheet(id) {
   closeSheet();
   document.getElementById(id).hidden = false;
   if (id === "howSheet") tourStart();
+  if (id === "socialSheet") sDraw();
   if (id === "helpSheet") setTimeout(function () { document.getElementById("helpMsg").focus(); }, 50);
 }
 function closeSheet() {
-  ["howSheet", "helpSheet"].forEach(function (id) { document.getElementById(id).hidden = true; });
+  ["howSheet", "helpSheet", "socialSheet"].forEach(function (id) { document.getElementById(id).hidden = true; });
   tourStop();
 }
 function askTeam(to, subject) {
@@ -318,6 +339,108 @@ function askTeam(to, subject) {
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
 /* Show the video and "What's new" once after this update. */
 try { if (localStorage.getItem("maranatha-learning-center:seenNew") !== "2026-11-07") { localStorage.setItem("maranatha-learning-center:seenNew", "2026-11-07"); setTimeout(function () { openSheet("howSheet"); }, 1200); } } catch (e) {}
+</script>
+<div class="sheet" id="socialSheet" hidden onclick="if(event.target===this)closeSheet()">
+  <div class="box">
+    <h2>Set up social media</h2>
+    <p>Step by step for Facebook and Instagram. All the words are written for you. Tap <b>Copy</b>, then paste where the step says. Tap <b>Done</b> after each step. Your place is saved on this device.</p>
+    <div class="sprog"><i id="sBar"></i></div><div id="sCount" class="scount"></div>
+    <div id="sSteps"></div>
+    <p class="snote">Keep your passwords to yourself. Nobody from Maranatha or tech support will ever ask for them. If you get stuck, tap <b>? Help</b> and choose Tech support.</p>
+    <button class="btn close" onclick="closeSheet()">Close</button>
+  </div>
+</div>
+<script>
+/* Social media setup: a guided checklist with ready-to-paste wording. Progress is kept on this device only. */
+var SITE = "https://baskerville1-welcome.github.io/maranatha-reentry/";
+var SOCIAL = [
+ { id: "fb1", t: "Open Facebook and start your Page",
+   how: ["Sign in to your own Facebook account first. A Page is run from your personal account, and your personal posts stay private.", "Tap the button below. It opens Facebook's “Create a Page” screen."],
+   link: ["Open Facebook: Create a Page", "https://www.facebook.com/pages/create"] },
+ { id: "fb2", t: "Type the Page name, category and bio",
+   how: ["Paste each item into the box with the same name, then tap Create Page."],
+   copy: [["Page name", "Maranatha Reentry"], ["Category (start typing, then pick it)", "Nonprofit organization"],
+          ["Bio", "Maranatha Reentry helps men coming home from incarceration in Metro Detroit rebuild their lives through a 12-week writing and literacy cohort and transitional housing."]] },
+ { id: "fb3", t: "Add your contact details",
+   how: ["Facebook asks for these next. Paste the website and email. Type the phone number you want people to call.", "For hours, choose “No hours available.” Then tap Next."],
+   copy: [["Website", SITE], ["Email", "nabaskerville@gmail.com"], ["City", "Detroit, MI"]] },
+ { id: "fb4", t: "Add your pictures",
+   how: ["Tap each button to save the picture to your phone or computer.", "On Facebook, tap Add profile picture and choose the logo. Then tap Add cover photo and choose the cover picture. Tap Next."],
+   pics: true },
+ { id: "fb5", t: "Choose your Page web address",
+   how: ["Open your Page, tap Settings, then Page setup or Public details, then Username.", "Paste the name below. If Facebook says it's taken, add “detroit” to the end."],
+   copy: [["Username", "maranathareentry"]] },
+ { id: "fb6", t: "Add a Send message button",
+   how: ["On your Page, tap Add button (under the cover photo).", "Choose Send message, then Save. People can now message Maranatha directly."] },
+ { id: "fb7", t: "Let the team help you",
+   how: ["This lets Cyars or staff help with the Page using their own login. You never share your password.", "On your Page, tap Settings, then Page setup, then Page access. Tap Add new, type the person's name, and choose them.", "Leave “Full control” off unless you want them to manage everything."] },
+ { id: "fb8", t: "Post your first three posts",
+   how: ["On your Page, tap Create post, paste one post, and tap Post. Post the next one in a few days."],
+   copy: [["Post 1: hello", "Welcome to Maranatha Reentry. We help men coming home from incarceration in Metro Detroit find their footing again, through a 12-week writing and literacy cohort and a safe place to live. Follow along as we grow, and share this page with someone who should know about us. " + SITE],
+          ["Post 2: host a class", "Churches, libraries and community centers in Metro Detroit: we're looking for places to host our 12-week writing and literacy cohort for men returning home. If you have a room one evening a week, send us a message."],
+          ["Post 3: how to help", "There are many ways to stand with men coming home: share our page, volunteer as a writing mentor, help furnish our future house, or give. Send us a message to get involved. " + SITE]] },
+ { id: "ig1", t: "Make the Instagram account",
+   how: ["Download the free Instagram app from the App Store or Google Play.", "Tap Create new account. Use the same email as the Facebook Page.", "When it asks for a username, paste the one below."],
+   copy: [["Username", "maranathareentry"]],
+   link: ["Get the Instagram app", "https://www.instagram.com/"] },
+ { id: "ig2", t: "Fill in the Instagram profile",
+   how: ["Tap your picture (bottom right), then Edit profile.", "Name: paste the name. Bio: paste the bio. Links: add the website. Picture: choose the logo you saved in step 4."],
+   copy: [["Name", "Maranatha Reentry"], ["Bio", "Helping men coming home rebuild their lives. Writing & literacy cohort + transitional housing. Detroit, MI"], ["Website", SITE]] },
+ { id: "ig3", t: "Make it a nonprofit account and link it to Facebook",
+   how: ["In Instagram, tap ☰ (top right), then Account type and tools, then Switch to professional account.", "Choose the category Nonprofit organization, then Business.", "When it asks to connect a Facebook Page, choose Maranatha Reentry. If it doesn't ask, open Accounts Center in the ☰ menu and add the Facebook account there."] },
+ { id: "ig4", t: "Share your first post on Instagram",
+   how: ["Tap the + button, choose the cover picture you saved, tap Next, paste Post 1 from step 8 as the caption, and tap Share."] }
+];
+function sDone() { try { return JSON.parse(localStorage.getItem("maranatha-learning-center:social") || "{}"); } catch (e) { return {}; } }
+function sSave(d) { try { localStorage.setItem("maranatha-learning-center:social", JSON.stringify(d)); } catch (e) {} }
+function sDraw() {
+  var d = sDone(), n = 0, h = "", openNext = true;
+  SOCIAL.forEach(function (s, i) {
+    var done = !!d[s.id]; if (done) n++;
+    var open = !done && openNext; if (open) openNext = false;
+    h += '<div class="sstep' + (done ? " sdone" : "") + '"><div class="shead" onclick="this.parentNode.classList.toggle(\'sopen\')"><span class="snum">' + (done ? "✓" : (i + 1)) + '</span><b>' + tourEsc(s.t) + '</b></div><div class="sbody">';
+    s.how.forEach(function (x) { h += "<p>" + tourEsc(x) + "</p>"; });
+    if (s.link) h += '<a class="slink" href="' + s.link[1] + '" target="_blank" rel="noopener">' + tourEsc(s.link[0]) + ' ›</a>';
+    (s.copy || []).forEach(function (c, k) {
+      h += '<div class="scopy"><small>' + tourEsc(c[0]) + '</small><div>' + tourEsc(c[1]) + '</div><button onclick="sCopy(this,' + i + ',' + k + ')">Copy</button></div>';
+    });
+    if (s.pics) h += '<button class="slink" onclick="sPic(\'logo\')">Save the logo picture</button><button class="slink" onclick="sPic(\'cover\')">Save the cover picture</button>';
+    h += '<button class="sok" onclick="sMark(\'' + s.id + '\',' + (done ? "false" : "true") + ')">' + (done ? "Undo" : "Done ✓") + '</button></div></div>';
+    if (open) h = h.replace(/<div class="sstep"><div class="shead"([^]*)$/, '<div class="sstep sopen"><div class="shead"$1');
+  });
+  document.getElementById("sSteps").innerHTML = h;
+  document.getElementById("sBar").style.width = (n / SOCIAL.length * 100) + "%";
+  document.getElementById("sCount").textContent = n === SOCIAL.length ? "All done. Facebook and Instagram are set up." : n + " of " + SOCIAL.length + " steps done";
+}
+function sMark(id, v) { var d = sDone(); if (v) d[id] = Date.now(); else delete d[id]; sSave(d); sDraw(); }
+function sCopy(btn, i, k) {
+  var txt = SOCIAL[i].copy[k][1];
+  function ok() { btn.textContent = "Copied ✓"; setTimeout(function () { btn.textContent = "Copy"; }, 1800); }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, function () { sCopyOld(txt); ok(); });
+  else { sCopyOld(txt); ok(); }
+}
+function sCopyOld(txt) { var t = document.createElement("textarea"); t.value = txt; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); } catch (e) {} t.remove(); }
+function sPic(kind) {
+  var w = kind === "logo" ? 720 : 1640, h = kind === "logo" ? 720 : 624, c = document.createElement("canvas"); c.width = w; c.height = h;
+  var x = c.getContext("2d"); x.fillStyle = "#1f3a5f"; x.fillRect(0, 0, w, h);
+  x.strokeStyle = "#c9a04a"; x.textAlign = "center"; x.textBaseline = "middle";
+  if (kind === "logo") {
+    x.lineWidth = 22; x.beginPath(); x.arc(360, 360, 290, 0, Math.PI * 2); x.stroke();
+    x.fillStyle = "#c9a04a"; x.font = "bold 330px Georgia, serif"; x.fillText("M", 360, 385);
+  } else {
+    x.fillStyle = "#c9a04a"; x.fillRect(0, h - 18, w, 18);
+    x.fillStyle = "#ffffff"; x.font = "bold 112px Georgia, serif"; x.fillText("Maranatha Reentry", w / 2, 250);
+    x.fillStyle = "#c9a04a"; x.font = "52px Georgia, serif"; x.fillText("Writing  ·  Housing  ·  New beginnings", w / 2, 370);
+    x.fillStyle = "#e8dcc0"; x.font = "40px Arial, sans-serif"; x.fillText("Metro Detroit", w / 2, 450);
+  }
+  var name = kind === "logo" ? "maranatha-logo.png" : "maranatha-cover.png";
+  c.toBlob(function (b) {
+    var u = URL.createObjectURL(b), a = document.createElement("a"); a.href = u; a.download = name;
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent)) { a.target = "_blank"; }
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
+  }, "image/png");
+}
+if ((location.hash || "") === "#social") setTimeout(function () { openSheet("socialSheet"); }, 600);
 </script>
 </body>
 </html>
